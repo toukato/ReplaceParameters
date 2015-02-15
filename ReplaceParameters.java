@@ -4,69 +4,43 @@ import java.util.regex.Pattern;
 
 public class ReplaceParameters {
 	
-	String regex1 = "=([a-zA-Z0-9%+]+)*&";
-	String regex2 = "=[a-zA-Z0-9%+]+$";
-	String regex3 = "=[a-zA-Z0-9%+]+(\\s*)";
+	String regex1 = "=([^=^&]+)*(&|\\?)";
+	String regex2 = "=([^=^&]+)*[ ]";
 
-	Pattern p = Pattern.compile(regex1);
-	Pattern p1 = Pattern.compile(regex2);
-	Pattern p2 = Pattern.compile(regex3);
+	Pattern p1 = Pattern.compile(regex1);
+	Pattern p2 = Pattern.compile(regex2);
 	
-	public String replaceXSS(String requestBounds, int requestFirst, int requestEnd)
+	public void replaceParameters(IContextMenuInvocation invocation, String replaceString)
 	{
-		String requestReplace = requestBounds.substring(requestFirst, requestEnd);
-		StringBuilder sb = new StringBuilder(requestBounds);
-		
-		Matcher m = p.matcher(requestReplace);
-		String result = m.replaceAll("=\"</>xss&");
+		try
+		{
+		IHttpRequestResponse[] requestResponseArray = invocation.getSelectedMessages();
+    	int[] requestResponseBounds = invocation.getSelectionBounds();
+    	String requestBounds = "";
+    	int requestFirst = requestResponseBounds[0];
+    	int requestEnd = requestResponseBounds[1];
+    	
+		for(IHttpRequestResponse requestResponse:requestResponseArray)
+		{
+			requestBounds = new String(requestResponse.getRequest());
+			
+			String requestReplace = requestBounds.substring(requestFirst, requestEnd);
+			StringBuilder sb = new StringBuilder(requestBounds);
+			
+			Matcher m = p1.matcher(requestReplace);
+			String result = m.replaceAll("=" + replaceString + "&");
 
-		Matcher m1 = p1.matcher(result);
-		result = m1.replaceAll("=\"</>xss");
+			Matcher m1 = p2.matcher(result);
+			result = m1.replaceAll("=" + replaceString + " ");
 
-		Matcher m2 = p2.matcher(result);
-		result = m2.replaceAll("=\"</>xss ");
-
-		sb.replace(requestFirst, requestEnd, result);
-		
-		return sb.toString();
+			sb.replace(requestFirst, requestEnd, result);
+			
+			requestResponse.setRequest(sb.toString().getBytes());
+		}
+		}
+		catch(UnsupportedOperationException exception)
+		{
+			
+		}
 	}
-
-	public String replaceUNIX(String requestBounds, int requestFirst, int requestEnd)
-	{
-		String requestReplace = requestBounds.substring(requestFirst, requestEnd);
-		StringBuilder sb = new StringBuilder(requestBounds);
-		
-		Matcher m = p.matcher(requestReplace);
-		String result = m.replaceAll("='\"<>xss../../../../../../../bin/sleep+60|&");
-
-		Matcher m1 = p1.matcher(result);
-		result = m1.replaceAll("='\"<>xss../../../../../../../bin/sleep+60|");
-
-		Matcher m2 = p2.matcher(result);
-		result = m2.replaceAll("=\"../../../../../../../bin/sleep+60| ");
-
-		sb.replace(requestFirst, requestEnd, result);
-		
-		return sb.toString();
-	}
-
-	public String replaceWIN(String requestBounds, int requestFirst, int requestEnd)
-	{
-		String requestReplace = requestBounds.substring(requestFirst, requestEnd);
-		StringBuilder sb = new StringBuilder(requestBounds);
-		
-		Matcher m = p.matcher(requestReplace);
-		String result = m.replaceAll("='\"<>xss..¥..¥..¥..¥..¥..¥..¥windows¥system32¥ping+–n+21+127.0.0.1|&");
-
-		Matcher m1 = p1.matcher(result);
-		result = m1.replaceAll("='\"<>xss..¥..¥..¥..¥..¥..¥..¥windows¥system32¥ping+–n+21+127.0.0.1|");
-
-		Matcher m2 = p2.matcher(result);
-		result = m2.replaceAll("=\"</>xss..¥..¥..¥..¥..¥..¥..¥windows¥system32¥ping+–n+21+127.0.0.1| ");
-
-		sb.replace(requestFirst, requestEnd, result);
-		
-		return sb.toString();
-	}
-
 }

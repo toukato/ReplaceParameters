@@ -27,66 +27,27 @@ public class BurpExtender implements IBurpExtender, IContextMenuFactory
     	{
     		public void actionPerformed(ActionEvent e)
     		{
-    	    	IHttpRequestResponse[] requestResponseArray = invocation.getSelectedMessages();
-    	    	int[] requestResponseBounds = invocation.getSelectionBounds();
-    	    	String requestBounds = "";
-    	    	int requestFirst = requestResponseBounds[0];
-    	    	int requestEnd = requestResponseBounds[1];
-    	    	
-    			for(IHttpRequestResponse requestResponse:requestResponseArray)
-    			{
-    				requestBounds = new String(requestResponse.getRequest());
-        			ReplaceParameters replaceParameters = new ReplaceParameters();
-        			String result = replaceParameters.replaceXSS(requestBounds, requestFirst, requestEnd);
-        			
-        			requestResponse.setRequest(result.getBytes());
-    			}
+    			ReplaceParameters replaceParameters = new ReplaceParameters();
+    			replaceParameters.replaceParameters(invocation, "\"<>xss/");
     		}
-
     	});
     	
     	subMenuUNIX.addActionListener(new ActionListener()
     	{
     		public void actionPerformed(ActionEvent e)
     		{
-    	    	IHttpRequestResponse[] requestResponseArray = invocation.getSelectedMessages();
-    	    	int[] requestResponseBounds = invocation.getSelectionBounds();
-    	    	String requestBounds = "";
-    	    	int requestFirst = requestResponseBounds[0];
-    	    	int requestEnd = requestResponseBounds[1];
-    	    	
-    			for(IHttpRequestResponse requestResponse:requestResponseArray)
-    			{
-    				requestBounds = new String(requestResponse.getRequest());
-        			ReplaceParameters replaceParameters = new ReplaceParameters();
-        			String result = replaceParameters.replaceUNIX(requestBounds, requestFirst, requestEnd);
-        			
-        			requestResponse.setRequest(result.getBytes());
-    			}
+    			ReplaceParameters replaceParameters = new ReplaceParameters();
+    			replaceParameters.replaceParameters(invocation, "'\"<>xss../../../../../../../bin/sleep+60|");
     		}
-
     	});
 
     	subMenuWIN.addActionListener(new ActionListener()
     	{
     		public void actionPerformed(ActionEvent e)
     		{
-    	    	IHttpRequestResponse[] requestResponseArray = invocation.getSelectedMessages();
-    	    	int[] requestResponseBounds = invocation.getSelectionBounds();
-    	    	String requestBounds = "";
-    	    	int requestFirst = requestResponseBounds[0];
-    	    	int requestEnd = requestResponseBounds[1];
-    	    	
-    			for(IHttpRequestResponse requestResponse:requestResponseArray)
-    			{
-    				requestBounds = new String(requestResponse.getRequest());
-        			ReplaceParameters replaceParameters = new ReplaceParameters();
-        			String result = replaceParameters.replaceWIN(requestBounds, requestFirst, requestEnd);
-        			
-        			requestResponse.setRequest(result.getBytes());
-    			}
+    			ReplaceParameters replaceParameters = new ReplaceParameters();
+    			replaceParameters.replaceParameters(invocation, "'\"<>xss..¥..¥..¥..¥..¥..¥..¥windows¥system32¥ping+–n+21+127.0.0.1|");
     		}
-
     	});
     	
     	mainItem.add(subMenuXSS);
